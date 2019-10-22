@@ -33,7 +33,20 @@ using namespace std;
 #define MAX_MESSAGE 256  // maximum buffer size for each message
 
 // different types of messages
-enum MESSAGE_TYPE {DATA_MSG, FILE_MSG, NEWCHANNEL_MSG, QUIT_MSG, UNKNOWN_MSG};    
+enum MESSAGE_TYPE {DATA_MSG, FILE_MSG, NEWCHANNEL_MSG, QUIT_MSG, UNKNOWN_MSG};
+
+class clientArg_t { 
+public:
+    int num_dp;
+    int patients;
+    int workers;
+    int buffer_size;
+    string fileName;
+    MESSAGE_TYPE msg_t;
+    clientArg_t(int n, int p, int w, int b) {
+        num_dp = n, patients = p, workers = w, buffer_size = b;
+    }    
+};
 
 
 // message requesting a data point
@@ -63,5 +76,6 @@ public:
 void EXITONERROR(string msg);
 vector<string> split (string line, char separator);
 __int64_t get_file_size (string filename);
+void handleArgs(int argc, char *argv[], clientArg_t* obj);
 
 #endif

@@ -6,6 +6,7 @@
 #include "FIFOreqchannel.h"
 using namespace std;
 
+clientArg_t* GlobalStruct;
 
 void * patient_function(void *arg)
 {
@@ -31,13 +32,20 @@ int main(int argc, char *argv[])
 	int m = MAX_MESSAGE; 	// default capacity of the file buffer
     srand(time_t(NULL));
     
-    
     int pid = fork();
     if (pid == 0){
 		// modify this to pass along m
         execl ("dataserver", "dataserver", (char *)NULL);
         
     }
+
+    GlobalStruct = new clientArg_t(n,p,w,b);
+    handleArgs(argc, argv, GlobalStruct);
+    cout << GlobalStruct->num_dp << endl;
+    cout << GlobalStruct->patients << endl;
+    cout << GlobalStruct->workers << endl;
+    cout << GlobalStruct->buffer_size << endl;
+
     
 	FIFORequestChannel* chan = new FIFORequestChannel("control", FIFORequestChannel::CLIENT_SIDE);
     BoundedBuffer request_buffer(b);
