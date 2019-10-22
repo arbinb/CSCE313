@@ -105,7 +105,11 @@ void handleArgs(int argc, char *argv[], clientArg_t* obj) {
 				cout << "f: " << obj->fileName << endl;
 				obj->msg_t = FILE_MSG;
 			}
-			break;	
+			break;
+		default:
+			cerr << "ERROR: CANNOT RESOLVE REQUEST TYPE" << endl;
+			exit(-1);
+            break;	
 		}
 	}
 }
