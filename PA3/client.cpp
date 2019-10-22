@@ -23,6 +23,7 @@ void *worker_function(void *arg)
 }
 int main(int argc, char *argv[])
 {
+    //Hello
     int n = 100;    //default number of requests per "patient"
     int p = 10;     // number of patients [1,15]
     int w = 100;    //default number of worker threads
