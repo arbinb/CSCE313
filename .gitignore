@@ -3,7 +3,6 @@
 *.dsYM
 */BIMDC/*
 */received/*
-*.docx
 *.zip
 launch.json
 settings.json
