@@ -1,4 +1,9 @@
 .DS_Store
 *.out
 *.dsYM
-BIMDC/*
+*/BIMDC/*
+*/received/*
+*.docx
+*.zip
+launch.json
+settings.json
