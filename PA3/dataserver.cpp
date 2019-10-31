@@ -77,7 +77,7 @@ void process_file_request (FIFORequestChannel* rc, char* request){
 	filemsg * f = (filemsg *) request;
 	string filename = request + sizeof (filemsg);
 	filename = "BIMDC/" + filename; // adding the path prefix to the requested file name
-	//cout << "Server received request for file " << filename << endl;
+	 cout << "Server received request for file " << filename << endl;
 
 	if (f->offset == 0 && f->length == 0){ // means that the client is asking for file size
 		__int64_t fs = get_file_size (filename);
@@ -153,9 +153,11 @@ int main(int argc, char *argv[])
 {
 	srand(time_t(NULL));
 	bufsize = MAX_MESSAGE; // modify this to accept bufsize m from the client side
+	cout << "in data server" << endl;
 	
 	for (int i=0; i<NUM_PERSONS; i++){
 		populate_file_data(i+1);
+		cout << "Didn't break at person " << i + 1 << endl;
 	}
 	
 	FIFORequestChannel* control_channel = new FIFORequestChannel ("control", FIFORequestChannel::SERVER_SIDE);
