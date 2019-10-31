@@ -34,7 +34,7 @@ __int64_t get_file_size (string filename){
 
 void handleArgs(int argc, char *argv[], clientArg_t* obj) {
 	int c;
-	while((c = getopt (argc, argv, "n:p:w:b:f")) != -1) {
+	while((c = getopt (argc, argv, "n:p:w:b:f:")) != -1) {
 		switch(c) {
 		case 'n':
 			if(obj->msg_t == FILE_MSG) {
@@ -67,19 +67,27 @@ void handleArgs(int argc, char *argv[], clientArg_t* obj) {
 			}
 			break;
 		case 'w':
-			if(obj->msg_t == FILE_MSG) {
-				cerr << "ERROR: CANNOT MAKE MULTIPLE REQUEST TYPES; MAKE SURE FLAGS ARE CORRECT" << endl;
-				exit(-1);
-			} else {
-				if(atoi(optarg) >= 50 && atoi(optarg) <= 5000) {
+			// if(obj->msg_t == FILE_MSG) {
+			// 	cerr << "ERROR: CANNOT MAKE MULTIPLE REQUEST TYPES; MAKE SURE FLAGS ARE CORRECT" << endl;
+			// 	exit(-1);
+			// } else {
+			// 	if(atoi(optarg) >= 0 && atoi(optarg) <= 5000) {
+			// 		obj->workers = atoi(optarg);					
+			// 		obj->msg_t = DATA_MSG;
+			// 	} else {
+			// 		cerr << "INVALID AMOUNT OF WORKERS" << endl;
+			// 		exit(-1);
+			// 	}
+			// 	//cout << "w: " << obj->workers << endl;
+			// }
+			if(atoi(optarg) >= 0 && atoi(optarg) <= 5000) {
 					obj->workers = atoi(optarg);					
-					obj->msg_t = DATA_MSG;
+					// obj->msg_t = DATA_MSG;
+					cout << "created workers" << endl;
 				} else {
 					cerr << "INVALID AMOUNT OF WORKERS" << endl;
 					exit(-1);
 				}
-				//cout << "w: " << obj->workers << endl;
-			}
 			break;
 		case 'b':
 			if(obj->msg_t == FILE_MSG) {
@@ -97,19 +105,33 @@ void handleArgs(int argc, char *argv[], clientArg_t* obj) {
 			}
 			break;
 		case 'f':
-			if(obj->msg_t == DATA_MSG) {
-				cerr << "ERROR: CANNOT MAKE MULTIPLE REQUEST TYPES; MAKE SURE FLAGS ARE CORRECT" << endl;
-				exit(-1);
-			} else {
-				obj->fileName = optarg;
-				cout << "f: " << obj->fileName << endl;
-				obj->msg_t = FILE_MSG;
-			}
+			cout << "got to file flag" << endl;
+			// if(obj->msg_t == DATA_MSG) {
+			// 	cerr << "ERROR: CANNOT MAKE MULTIPLE REQUEST TYPES; MAKE SURE FLAGS ARE CORRECT" << endl;
+			// 	exit(-1);
+			// } else {
+			// 	obj->fileName = optarg;
+			// 	cout << "f: " << obj->fileName << endl;
+			// 	obj->msg_t = FILE_MSG;
+			// }
+			cout << "1" << endl;
+			obj->fileName = "test";
+			cout << "2" << endl;
+			cout << "f: " << obj->fileName << endl;
+			string k = "";
+			cout << optarg << endl;
+			cout << "3" << endl;
+			cout << k << endl;
+			obj->fileName = (string) optarg;
+			cout << "f: " << obj->fileName << endl;
+			// obj->msg_t = FILE_MSG;
+			obj->fileReq = true;
+			cout << "set fileReq to true bitch" << endl;
 			break;
-		default:
-			cerr << "ERROR: CANNOT RESOLVE REQUEST TYPE" << endl;
-			exit(-1);
-            break;	
+		// default:
+		// 	cerr << "ERROR: CANNOT RESOLVE REQUEST TYPE" << endl;
+		// 	exit(-1);
+        //     break;	
 		}
 	}
 }
