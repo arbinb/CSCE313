@@ -15,6 +15,10 @@ public:
     void add (Histogram* h){
         hists.push_back (h);
     }
+
+    void update(int person_no, double ecg_value) {
+        hists.at(person_no - 1)->update(ecg_value);
+    }
     
     void print (){
         int nhists = hists.size();
@@ -53,9 +57,5 @@ public:
             cout << setw(5) << sum [j] << " "; 
         }
         cout << endl;
-    }
-
-    
-
-    
+    } 
 };
