@@ -43,6 +43,7 @@ public:
     int buffer_size;
     string fileName;
     MESSAGE_TYPE msg_t;
+    bool fileReq = false;
     clientArg_t(int n, int p, int w, int b) {
         num_dp = n, patients = p, workers = w, buffer_size = b;
     }    
