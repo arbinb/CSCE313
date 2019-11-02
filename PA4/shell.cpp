@@ -5,8 +5,10 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
+
 using namespace std;
-string trim(string input) {
+
+string trim(string input) {  //trims anything before and including leading spaces
     int i = 0;
     while (i < input.size() && input[i] == ' ')
         i++;
@@ -27,7 +29,7 @@ string trim(string input) {
     return input;
 }
 
-vector<string> split(string line, string separator = " ") {
+vector<string> split(string line, string separator = " ") {  //splits a string delimited by a separator into a vector
     vector<string> result;
     while (line.size()) {
         size_t found = line.find(separator);
@@ -69,28 +71,46 @@ void execute(string command) {
 }
 
 int main() {
-    while (true) {               // repeat this loop until the user presses Ctrl + C
+    while (true) {                       // repeat this loop until the user presses Ctrl + C
+        int std_in = dup(STDIN_FILENO);  // need to keep original stdin so it can be reset after redirection
+
+        cout << "\nuser@shell $ ";
+
         string commandline = ""; /*get from STDIN, e.g., "ls  -la |   grep Jul  | grep . | grep .cpp" */
+        getline(cin, commandline);
+        // cout << commandline << endl;
         // split the command by the "|", which tells you the pipe levels
         vector<string> tparts = split(commandline, "|");
-        int fd[1];
+        cout << tparts.size() << endl;
+        for (string x : tparts) {
+            cout << x << endl;
+        }
+
         // for each pipe, do the following:
         for (int i = 0; i < tparts.size(); i++) {
             // make pipe
-            if (!fork()) {
+            int fd[2];
+            pipe(fd);
+            if (!fork()) {  //child; redirects output to parent and execute in here
                 // redirect output to the next level
                 // unless this is the last level
                 if (i < tparts.size() - 1) {
-                    // redirect STDOUT to fd[1], so that it can write to the other side
-                    close(fd[1]);  // STDOUT already points fd[1], which can be closed
+                    dup2(fd[1], STDOUT_FILENO);  // redirect STDOUT to fd[1], so that it can write to the other side
+                    close(fd[1]);                // STDOUT already points fd[1], which can be closed
                 }
-                //execute function that can split the command by spaces to
-                // find out all the arguments, see the definition
-                execute(tparts[i]);  // this is where you execute
-            } else {
-                wait(0);  // wait for the child process
-                          // then do other redirects
+                /* executes function that can split the command by spaces to 
+                find out all the arguments, see the definition*/
+                execute(tparts[i]);         // this is where you execute
+            } else {                        //parent; if piped, redirects output from child in std input
+                wait(0);                    // wait for the child process
+                dup2(fd[0], STDIN_FILENO);  // then do other redirects
+                close(fd[1]);
             }
         }
+
+        dup2(std_in, STDIN_FILENO);  //reset std in
+        close(std_in);
+
+        cout << "Entering next iteration";
     }
 }
