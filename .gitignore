@@ -6,3 +6,5 @@
 *.zip
 launch.json
 settings.json
+/.vscode/*
+/.devcontainer/*
