@@ -98,6 +98,7 @@ int main() {
                     dup2(fd[1], STDOUT_FILENO);  // redirect STDOUT to fd[1], so that it can write to the other side
                     close(fd[1]);                // STDOUT already points fd[1], which can be closed
                 }
+                vector<string> output_redir = split(piped_parts.at(i), ">");
                 /* executes function that can split the command by spaces to 
                 find out all the arguments, see the definition*/
                 execute(piped_parts[i]);  // this is where you execute
