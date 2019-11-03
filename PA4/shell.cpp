@@ -142,16 +142,26 @@ int main() {
                 } else if (redirected_parts.size() > 1) {  //handles redirected output
                     cout << "we got some redirections" << endl;
                     for (int j = 0; j < redirected_parts.size(); j++) {
-                        string outFile = redirected_parts.at(j);
-                        size_t found = outFile.find("@REDIROUTTO");
+                        string redirFile = redirected_parts.at(j);
+                        size_t found = redirFile.find("@REDIROUTTO");
                         if (found != string::npos) {
                             cout << "redirecting output" << endl;
-                            outFile = outFile.substr(11);
-                            outFile = trim(outFile);
-                            int outFD = open(outFile.c_str(), O_CREAT | O_WRONLY | O_TRUNC,
+                            redirFile = redirFile.substr(11);
+                            redirFile = trim(redirFile);
+                            int outFD = open(redirFile.c_str(), O_CREAT | O_WRONLY | O_TRUNC,
                                              S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
                             dup2(outFD, STDOUT_FILENO);
                             close(outFD);
+                            piped_parts.at(i) = redirected_parts.at(0);
+                        }
+                        found = redirFile.find("@REDIRINFROM");
+                        if (found != string::npos) {
+                            cout << "redirecting input" << endl;
+                            redirFile = redirFile.substr(13);
+                            redirFile = trim(redirFile);
+                            int inFD = open(redirFile.c_str(), O_RDONLY);
+                            dup2(inFD, STDIN_FILENO);
+                            close(inFD);
                             piped_parts.at(i) = redirected_parts.at(0);
                         }
                     }
