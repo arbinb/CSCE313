@@ -80,31 +80,33 @@ int main() {
         getline(cin, commandline);
         // cout << commandline << endl;
         // split the command by the "|", which tells you the pipe levels
-        vector<string> tparts = split(commandline, "|");
-        cout << tparts.size() << endl;
-        for (string x : tparts) {
+        vector<string> piped_parts = split(commandline, "|");
+        cout << piped_parts.size() << endl;
+        for (string x : piped_parts) {
             cout << x << endl;
         }
 
         // for each pipe, do the following:
-        for (int i = 0; i < tparts.size(); i++) {
+        for (int i = 0; i < piped_parts.size(); i++) {
             // make pipe
             int fd[2];
             pipe(fd);
             if (!fork()) {  //child; redirects output to parent and execute in here
                 // redirect output to the next level
                 // unless this is the last level
-                if (i < tparts.size() - 1) {
+                if (i < piped_parts.size() - 1) {
                     dup2(fd[1], STDOUT_FILENO);  // redirect STDOUT to fd[1], so that it can write to the other side
                     close(fd[1]);                // STDOUT already points fd[1], which can be closed
                 }
                 /* executes function that can split the command by spaces to 
                 find out all the arguments, see the definition*/
-                execute(tparts[i]);         // this is where you execute
-            } else {                        //parent; if piped, redirects output from child in std input
-                wait(0);                    // wait for the child process
-                dup2(fd[0], STDIN_FILENO);  // then do other redirects
-                close(fd[1]);
+                execute(piped_parts[i]);  // this is where you execute
+            } else {                      //parent; if piped, redirects output from child in std input
+                wait(0);                  // wait for the child process
+                if (i < piped_parts.size() - 1) {
+                    dup2(fd[0], STDIN_FILENO);  // then do other redirects
+                    close(fd[1]);
+                }
             }
         }
 
