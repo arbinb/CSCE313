@@ -113,8 +113,9 @@ int main() {
     vector<string> temp = redirection(test);
     // int t1 = open("./PA4/foo.txt", O_CREAT);
 
-    while (true) {                       // repeat this loop until the user presses Ctrl + C
-        int std_in = dup(STDIN_FILENO);  // need to keep original stdin so it can be reset after redirection
+    while (true) {                         // repeat this loop until the user presses Ctrl + C
+        int std_in = dup(STDIN_FILENO);    // need to keep original stdin so it can be reset after redirection
+        int std_out = dup(STDOUT_FILENO);  // need to keep original stdout so it can be reset after redirection
 
         cout << "\nuser@shell $ ";
 
@@ -180,6 +181,7 @@ int main() {
 
         dup2(std_in, STDIN_FILENO);  //reset std in
         close(std_in);
+        dup2(std_out, STDOUT_FILENO);
 
         cout << "Entering next iteration";
     }
