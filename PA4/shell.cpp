@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -29,20 +30,46 @@ string trim(string input) {  //trims anything before and including leading space
     return input;
 }
 
-vector<string> split(string line, string separator = " ") {  //splits a string delimited by a separator into a vector
-    vector<string> result;
+vector<string> split(string line, string separator = " ", vector<string> in = vector<string>(0, "")) {  //splits a string delimited by a separator into a vector
+    cout << in.size() << endl;
+    vector<string> result = in;
     while (line.size()) {
         size_t found = line.find(separator);
-        if (found == string::npos) {
+        if (found == string::npos) {  //If separator not found
             string lastpart = trim(line);
+            cout << "Last part " << lastpart << endl;
             if (lastpart.size() > 0) {
                 result.push_back(lastpart);
             }
             break;
         }
+        size_t quotes_start = line.find("\"");  //ignore anything in quotes
+        if (quotes_start != string::npos) {
+            cout << line.substr(quotes_start + 1) << endl;
+            size_t quotes_end = line.substr(quotes_start + 1).find("\"") + quotes_start + 1;
+            if (quotes_end != string::npos)
+                cout << "quotes in this bitch" << endl;
+            if (found < quotes_start) {  //continue as normal
+                cout << "< before quote" << endl;
+            } else if (found > quotes_end) {  //continue as normal
+                cout << "< after quotes" << endl;
+            } else if ((found > quotes_start) && (found < quotes_end)) {  //if separator found within quotes ignore and look for seperator after the quotes
+                cout << "quotes in middle" << endl;
+                found = line.substr(quotes_end + 1).find(separator) + quotes_end + 1;
+            }
+        }
         string segment = trim(line.substr(0, found));
         //cout << "line: " << line << "found: " << found << endl;
         line = line.substr(found + 1);
+        if (separator == ">") {
+            string s2 = "@REDIROUTTO";
+            line.insert(0, s2);
+        } else if (separator == "<") {
+            string s2 = "@REDIRINFROM";
+            line.insert(0, s2);
+        }
+        cout << "Segment: " << segment << endl;
+        cout << "line: " << line << endl;
 
         //cout << "[" << segment << "]"<< endl;
         if (segment.size() != 0)
@@ -70,7 +97,22 @@ void execute(string command) {
     execvp(args[0], args);
 }
 
+vector<string> redirection(string line) {  //not actual logic but using split, creates a vector denoting redirection
+    cout << line << endl;
+    vector<string> in_parts = split(line, "<");
+    cout << in_parts.size() << endl;
+    vector<string> out_parts;
+    for (string x : in_parts) {
+        out_parts = split(x, ">", out_parts);
+    }
+    return out_parts;
+}
+
 int main() {
+    string test = "grep < test.txt > test2.txt";
+    vector<string> temp = redirection(test);
+    // int t1 = open("./PA4/foo.txt", O_CREAT);
+
     while (true) {                       // repeat this loop until the user presses Ctrl + C
         int std_in = dup(STDIN_FILENO);  // need to keep original stdin so it can be reset after redirection
 
@@ -91,14 +133,29 @@ int main() {
             // make pipe
             int fd[2];
             pipe(fd);
+            vector<string> redirected_parts = redirection(piped_parts.at(i));
             if (!fork()) {  //child; redirects output to parent and execute in here
-                // redirect output to the next level
-                // unless this is the last level
+                // redirect output to the next level unless this is the last level
                 if (i < piped_parts.size() - 1) {
-                    dup2(fd[1], STDOUT_FILENO);  // redirect STDOUT to fd[1], so that it can write to the other side
-                    close(fd[1]);                // STDOUT already points fd[1], which can be closed
+                    dup2(fd[1], STDOUT_FILENO);            // redirect STDOUT to fd[1], so that it can write to the other side
+                    close(fd[1]);                          // STDOUT already points fd[1], which can be closed
+                } else if (redirected_parts.size() > 1) {  //handles redirected output
+                    cout << "we got some redirections" << endl;
+                    for (int j = 0; j < redirected_parts.size(); j++) {
+                        string outFile = redirected_parts.at(j);
+                        size_t found = outFile.find("@REDIROUTTO");
+                        if (found != string::npos) {
+                            cout << "redirecting output" << endl;
+                            outFile = outFile.substr(11);
+                            outFile = trim(outFile);
+                            int outFD = open(outFile.c_str(), O_CREAT | O_WRONLY | O_TRUNC,
+                                             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                            dup2(outFD, STDOUT_FILENO);
+                            close(outFD);
+                            piped_parts.at(i) = redirected_parts.at(0);
+                        }
+                    }
                 }
-                vector<string> output_redir = split(piped_parts.at(i), ">");
                 /* executes function that can split the command by spaces to 
                 find out all the arguments, see the definition*/
                 execute(piped_parts[i]);  // this is where you execute
