@@ -4,7 +4,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <algorithm>
 #include <iostream>
+#include <locale>
 #include <vector>
 
 using namespace std;
@@ -126,6 +128,11 @@ int main() {
 
         string commandline = ""; /*get from STDIN, e.g., "ls  -la |   grep Jul  | grep . | grep .cpp" */
         getline(cin, commandline);
+        string checkExit = commandline;
+        transform(checkExit.begin(), checkExit.end(), checkExit.begin(), ::tolower);
+        if (checkExit == "exit") {
+            return 0;
+        }
         // //cout << commandline << endl;
         // split the command by the "|", which tells you the pipe levels
         vector<string> piped_parts = split(commandline, "|");
