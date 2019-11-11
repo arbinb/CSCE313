@@ -158,7 +158,6 @@ int main() {
         if (checkExit == "exit") {
             exit(-1);
         }
-
         size_t cd = commandline.find("cd");  //handles cd
         if (cd != string::npos) {
             char cd_arg[100];
