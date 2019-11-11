@@ -179,7 +179,7 @@ int main() {
             continue;
         }
 
-        if (commandline == "jobs") {
+        if (commandline == "jobs") {  //handles jobs
             for (int yy = 0; yy < processes_name.size(); yy++) {
                 cout << processes_pid.at(yy) << "       " << processes_name.at(yy) << endl;
             }
